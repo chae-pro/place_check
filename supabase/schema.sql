@@ -1,6 +1,6 @@
 -- Supabase SQL Editor에서 한 번 실행하세요. 모든 일반 사용자 접근은 RLS 적용.
 create table public.places (
- id uuid primary key default gen_random_uuid(), user_id uuid not null references auth.users(id) on delete cascade,
+ id uuid primary key default gen_random_uuid(), user_id uuid not null,
  name text not null check(length(trim(name)) between 1 and 100), search_name text not null check(length(trim(search_name)) between 1 and 150),
  address text not null check(length(trim(address)) between 1 and 300), start_date date not null,
  is_active boolean not null default true, created_at timestamptz not null default now(), updated_at timestamptz not null default now()
