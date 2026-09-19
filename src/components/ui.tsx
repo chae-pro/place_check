@@ -1,0 +1,6 @@
+import {formatTime,getKeywordProgress} from '@/lib/progress';
+export function StatusBadge({remaining}:{remaining:number}){return <span className={`badge ${remaining===0?'complete':remaining<=5?'warning':''}`}>{remaining===0?'목표달성':remaining<=5?`D-${remaining}`:'진행중'}</span>;}
+export function ProgressBar({value}:{value:number}){return <div className="progress" role="progressbar" aria-valuenow={value} aria-valuemin={0} aria-valuemax={100} aria-label="목표 진행률"><div style={{width:`${value}%`}}/></div>;}
+export function RankText({rank,checked}:{rank:number|null;checked:boolean}){return <span className="rank">{!checked?'미조회':rank===null?'범위 밖':`${rank}위`}</span>;}
+export type Progress=ReturnType<typeof getKeywordProgress>;
+export function ProgressStats({p,target}:{p:Progress;target:number}){return <div className="keyword-grid"><div><p>오늘 대표순위</p><RankText rank={p.todayRank} checked={p.todayChecked}/></div><div><p>누적 인정일</p><strong>{p.achievedDays} <span className="muted">/ {target}일</span></strong></div><div><p>남은 인정일</p><strong>{p.remainingDays}일</strong></div><div><p>진행률 · {p.progress}%</p><ProgressBar value={p.progress}/></div><p className="muted">마지막 체크 {formatTime(p.lastChecked)}</p></div>;}

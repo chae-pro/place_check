@@ -1,0 +1,11 @@
+import {existsSync,writeFileSync,readFileSync} from 'node:fs';
+import {randomBytes} from 'node:crypto';
+import {spawn} from 'node:child_process';
+import {fileURLToPath} from 'node:url';
+process.chdir(fileURLToPath(new URL('..',import.meta.url)));
+const path='.env.local';
+if(!existsSync(path))writeFileSync(path,`LOCAL_DEMO=true\nLOCAL_SESSION_SECRET=${randomBytes(32).toString('hex')}\nRANKING_PROVIDER=mock\n`);
+if(!readFileSync(path,'utf8').includes('LOCAL_SESSION_SECRET='))throw new Error('.env.local에 LOCAL_SESSION_SECRET을 설정해주세요.');
+console.log('로컬랭크: http://localhost:3000');
+const child=spawn(process.execPath,['node_modules/next/dist/bin/next','dev','--hostname','127.0.0.1','--port','3000'],{stdio:'inherit',env:process.env});
+child.on('exit',code=>process.exit(code??0));

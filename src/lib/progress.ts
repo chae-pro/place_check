@@ -1,0 +1,10 @@
+import type {Check} from './types';
+export function seoulDate(date = new Date()) { return new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Seoul',year:'numeric',month:'2-digit',day:'2-digit'}).format(date); }
+export function formatTime(value:string|null) {return value ? new Intl.DateTimeFormat('ko-KR',{timeZone:'Asia/Seoul',dateStyle:'short',timeStyle:'short'}).format(new Date(value)) : '미조회';}
+export function getDailyBestRank(checks:Pick<Check,'rank'>[]) {const ranks=checks.flatMap(c=>c.rank!==null && c.rank>0 ? [c.rank]:[]);return ranks.length ? Math.min(...ranks):null;}
+export function getAchievedDays(checks:Check[],startDate:string,targetRank:number,today=seoulDate()) {return new Set(checks.filter(c=>c.check_date>=startDate && c.check_date<=today && c.rank!==null && c.rank>0 && c.rank<=targetRank).map(c=>c.check_date)).size;}
+export const getRemainingDays=(achieved:number,target:number)=>Math.max(0,target-achieved);
+export const getProgressPercent=(achieved:number,target:number)=>target>0?Math.min(100,Math.round(achieved/target*100)):0;
+export const getStatus=(remaining:number)=>remaining===0?'목표달성':remaining<=5?`D-${remaining}`:'진행중';
+export function getKeywordProgress(checks:Check[],start:string,rank:number,days:number,today=seoulDate()) {const achievedDays=getAchievedDays(checks,start,rank,today);const remainingDays=getRemainingDays(achievedDays,days);const todays=checks.filter(c=>c.check_date===today);return {achievedDays,remainingDays,progress:getProgressPercent(achievedDays,days),status:getStatus(remainingDays),todayRank:getDailyBestRank(todays),todayChecked:todays.length>0,lastChecked:checks.map(c=>c.checked_at).sort().at(-1)??null};}
+export function dailyRecords(checks:Check[],targetRank:number,start:string) {return [...new Set(checks.map(c=>c.check_date))].sort().reverse().map(date=>{const rows=checks.filter(c=>c.check_date===date);const rank=getDailyBestRank(rows);return {date,rank,count:rows.length,recognized:date>=start && date<=seoulDate() && rank!==null && rank<=targetRank,last:rows.map(c=>c.checked_at).sort().at(-1)!,providers:[...new Set(rows.map(c=>c.provider))].join(', ')};});}

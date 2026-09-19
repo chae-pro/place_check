@@ -1,0 +1,4 @@
+'use client';
+import {useActionState} from 'react';
+import {login} from '@/app/login/actions';
+export function LoginForm({local,ready}:{local:boolean;ready:boolean}){const [state,action,pending]=useActionState(login,{error:''});return <form action={action}>{!local&&<><label className="field">이메일<input name="email" type="email" autoComplete="email" placeholder="admin@example.com" required/></label><label className="field">비밀번호<input name="password" type="password" autoComplete="current-password" required/></label></>}{state.error&&<p role="alert" className="feedback error">{state.error}</p>}<button className="btn primary" disabled={pending||!ready}>{pending?'로그인 중...':local?'로컬 테스트 시작':'로그인'}</button>{local&&<p className="footnote">이 PC에서만 사용하는 테스트 계정입니다. 입력한 데이터는 이 PC에 저장됩니다.</p>}</form>;}
