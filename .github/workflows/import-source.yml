@@ -1,1 +1,33 @@
-
+name: Import initial source
+on:
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  import:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Import source archive when present
+        shell: bash
+        run: |
+          if [ ! -f source-upload.zip ]; then
+            echo "Source was already imported. Nothing to do."
+            exit 0
+          fi
+          python3 - <<'PY'
+          import pathlib, zipfile
+          root = pathlib.Path.cwd().resolve()
+          with zipfile.ZipFile('source-upload.zip') as archive:
+              for entry in archive.infolist():
+                  target = (root / entry.filename).resolve()
+                  if root not in target.parents or entry.filename.split('/')[0] not in {'src', 'scripts', 'supabase', 'tests'}:
+                      raise RuntimeError('Unexpected source path')
+              archive.extractall(root)
+          PY
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add src scripts supabase tests
+          git rm source-upload.zip
+          git commit -m "Import verified place ranking application source"
+          git push
